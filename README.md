@@ -76,7 +76,7 @@ make
 
 ```cmake
 add_subdirectory(path/to/mjpeg_server)
-target_link_libraries(your_target PRIVATE mjpeg_server)
+target_link_libraries(your_target PRIVATE mjpeg_server::mjpeg_server)
 ```
 
 #### Using find_package

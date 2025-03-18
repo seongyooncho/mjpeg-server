@@ -1,0 +1,106 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Ubuntu GCC"
+            os: ubuntu-latest
+            compiler: gcc
+            build_type: Release
+            
+          - name: "Ubuntu Clang"
+            os: ubuntu-latest
+            compiler: clang
+            build_type: Release
+            
+          - name: "macOS"
+            os: macos-latest
+            compiler: clang
+            build_type: Release
+            
+          - name: "Windows MSVC"
+            os: windows-latest
+            compiler: msvc
+            build_type: Release
+            
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install OpenCV (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopencv-dev
+        
+    - name: Install OpenCV (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew update
+        brew install opencv
+        
+    - name: Install OpenCV (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install opencv
+        
+    - name: Configure CMake (Non-Windows)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir -p build
+        cd build
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          export CC=gcc
+          export CXX=g++
+        elif [ "${{ matrix.compiler }}" = "clang" ]; then
+          export CC=clang
+          export CXX=clang++
+        fi
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMJPEG_SERVER_BUILD_EXAMPLES=ON
+      shell: bash
+      
+    - name: Configure CMake (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMJPEG_SERVER_BUILD_EXAMPLES=ON
+      shell: pwsh
+    
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config ${{ matrix.build_type }} --parallel 4
+      
+    - name: Test (if tests exist)
+      run: |
+        cd build
+        if [ -d "tests" ] || [ -f "CTestTestfile.cmake" ]; then
+          ctest -C ${{ matrix.build_type }} --output-on-failure
+        else
+          echo "No tests found, skipping test step"
+        fi
+      shell: bash
+      
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.name }}-artifacts
+        path: |
+          build/lib*
+          build/*.dll
+          build/*.so
+          build/*.dylib
+          build/examples/**/mjpeg_server_example*
+        if-no-files-found: ignore

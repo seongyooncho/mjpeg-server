@@ -89,23 +89,3 @@ target_link_libraries(your_target PRIVATE mjpeg_server::mjpeg_server)
 ## License
 
 [MIT License](LICENSE)
-```
-
-## Using as a Git Submodule in Other Projects
-
-Once you have this repository set up, you can include it in other projects as a Git submodule:
-
-```bash
-# In your main project
-git submodule add https://github.com/seongyooncho/mjpeg-server.git external/mjpeg-server
-```
-
-Then, in your main project's CMakeLists.txt:
-
-```cmake
-# Add the submodule
-add_subdirectory(external/mjpeg-server)
-
-# Link against it
-target_link_libraries(your_target PRIVATE mjpeg_server::mjpeg_server)
-```

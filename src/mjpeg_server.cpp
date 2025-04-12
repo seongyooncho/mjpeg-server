@@ -21,6 +21,7 @@ namespace {
                "Content-Type: multipart/x-mixed-replace; boundary=frame\r\n"
                "Cache-Control: no-cache\r\n"
                "Connection: close\r\n"
+               "Access-Control-Allow-Origin: *\r\n"  // Enable CORS
                "\r\n";
     }
     

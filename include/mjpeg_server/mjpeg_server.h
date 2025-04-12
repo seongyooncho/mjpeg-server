@@ -56,5 +56,5 @@ private:
     static constexpr std::string_view BOUNDARY = "--frame";
     static constexpr std::string_view MIME_TYPE = "image/jpeg";
     static constexpr int DEFAULT_JPEG_QUALITY = 80;
-    static constexpr auto FRAME_INTERVAL = std::chrono::milliseconds(33); // ~30fps
+    static constexpr auto FRAME_INTERVAL = std::chrono::milliseconds(66); // ~15fps
 };
